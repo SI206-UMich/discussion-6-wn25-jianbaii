@@ -19,19 +19,28 @@ def load_csv(f):
     base_path = os.path.abspath(os.path.dirname(__file__))
     full_path = os.path.join(base_path, f)
     # use this 'full_path' variable as the file that you open
-    data = {}
-    with open(full_path, mode='r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            year = row['Year']
-            month = row['Month']
-            value = row['Visitors']
-
-            if year not in data:
-                data[year] = {}
-
-            data[year][month] = value
-    return data
+    with open(full_path) as fh:
+        r = csv.reader(fh)
+        rows = []
+        print(f"Add the data from the csv")
+        for row in r:
+            print(f"Adding {row} to rows")
+            rows.append(row)
+        print(f"Final value of rows is {rows}")
+    
+    print("Create a dictionary d")
+    d = {}
+    header = row[0]
+    for year in header[1:]:
+        d[year] = {}
+    print(f"Added the years, d is now {d}")
+    print("Add all the rows, skipping the first one")
+    for row in rows[1:]:
+        for i in range(1, len(row[1:])+1):
+            d[header[i]][row[0]] = row[i]
+            print(f"Key is [{header[i]}]{row[0]} and data is {row[i]}")
+    print(f"The dictionary from load_csv should look like: {d}")
+    return d
 
 def get_annual_max(d):
     '''
@@ -74,7 +83,21 @@ def get_month_avg(d):
     Note: Don't strip or otherwise modify strings. Do not change datatypes except where necessary. 
         You'll have to make the vals int or float here and round the avg to pass tests.
     '''
-    pass
+    result = {}
+
+    for year, months in d.items():
+        total = 0
+        count = 0
+
+        for value in months.values():
+            total += int(value)
+            count += 1
+
+        if count > 0:
+            avg = round(total / count)
+            result[year] = avg
+
+    return result
 
 class dis7_test(unittest.TestCase):
     '''
