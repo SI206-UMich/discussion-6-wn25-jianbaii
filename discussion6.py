@@ -20,23 +20,17 @@ def load_csv(f):
     full_path = os.path.join(base_path, f)
     # use this 'full_path' variable as the file that you open
     data = {}
+    with open(full_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            year = row['Year']
+            month = row['Month']
+            value = row['Visitors']
 
-    try:
-        with open(full_path, mode='r', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                year = row['Year']
-                month = row['Month']
-                value = row['Value']
+            if year not in data:
+                data[year] = {}
 
-                if year not in data:
-                    data[year] = {}
-
-                data[year][month] = value
-
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File {f} not found at path {full_path}")
-
+            data[year][month] = value
     return data
 
 def get_annual_max(d):
@@ -51,7 +45,22 @@ def get_annual_max(d):
     Note: Don't strip or otherwise modify strings. Do not change datatypes except where necessary.
         You'll have to change vals to int to compare them. 
     '''
-    pass
+    result = []
+
+    for year, months in d.items():
+        max_month = None
+        max_value = float('-inf')
+
+        for month, value in months.items():
+            int_value = int(value)
+            if int_value > max_value:
+                max_value = int_value
+                max_month = month
+
+        if max_month:
+            result.append((year, max_month, max_value))
+
+    return result
 
 def get_month_avg(d):
     '''
@@ -88,6 +97,12 @@ class dis7_test(unittest.TestCase):
 
 def main():
     unittest.main(verbosity=2)
+    print("----------------------------------------------------------------------")
+    flight_dict = load_csv('daily_visitors.csv')
+    print("Output of load_csv:", flight_dict, "\n")
+    print("Output of get_annual_max:", get_annual_max(flight_dict), "\n")
+    print("Output of get_month_avg:", get_month_avg(flight_dict), "\n")
+
 
 if __name__ == '__main__':
     main()
