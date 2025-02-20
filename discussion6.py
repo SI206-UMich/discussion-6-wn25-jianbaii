@@ -1,5 +1,6 @@
 import unittest
 import os
+import csv
 
 
 def load_csv(f):
@@ -18,6 +19,25 @@ def load_csv(f):
     base_path = os.path.abspath(os.path.dirname(__file__))
     full_path = os.path.join(base_path, f)
     # use this 'full_path' variable as the file that you open
+    data = {}
+
+    try:
+        with open(full_path, mode='r', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                year = row['Year']
+                month = row['Month']
+                value = row['Value']
+
+                if year not in data:
+                    data[year] = {}
+
+                data[year][month] = value
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File {f} not found at path {full_path}")
+
+    return data
 
 def get_annual_max(d):
     '''
